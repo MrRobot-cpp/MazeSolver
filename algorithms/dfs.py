@@ -1,4 +1,4 @@
-from maze import get_maze, start_end
+from maze import get_static_maze, start_end
 
 def dfs(maze, start, end):
     stack = [start]
@@ -34,7 +34,7 @@ def reconstruct_path(parent, end):
     return path[::-1]
 
 if __name__ == "__main__":
-    maze = get_maze()
+    maze = get_static_maze()
     start, end = start_end()
     path = dfs(maze, start, end)
     print("DFS Path:", path)

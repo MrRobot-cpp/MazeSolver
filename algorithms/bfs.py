@@ -1,5 +1,5 @@
 from collections import deque
-from maze import get_maze, start_end
+from maze import get_static_maze, start_end
 
 def bfs(maze, start, end):
     queue = deque([start])
@@ -38,7 +38,7 @@ def reconstruct_path(parent, end):
     return path[::-1]
 
 if __name__ == "__main__":
-    maze = get_maze()
+    maze = get_static_maze()
     start, end = start_end()
     path = bfs(maze, start, end)
     print("BFS Path:", path)

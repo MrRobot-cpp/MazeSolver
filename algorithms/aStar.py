@@ -1,5 +1,5 @@
 import heapq
-from maze import get_maze, start_end
+from maze import get_static_maze, start_end
 
 def astar(maze, start, end):
     open_set = []
@@ -47,7 +47,7 @@ def reconstruct_path(parent, end):
     return path[::-1]
 
 if __name__ == "__main__":
-    maze = get_maze()
+    maze = get_static_maze()
     start, end = start_end()
     path = astar(maze, start, end)
     print("A* Path:", path)
