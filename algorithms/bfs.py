@@ -1,44 +1,41 @@
 from collections import deque
-from maze import get_static_maze, start_end
 
-def bfs(maze, start, end):
-    queue = deque([start])
+def bfs(maze, start, end, weights=None):
+    """Breadth-First Search with weights and nodes expanded tracking"""
+    if weights is None:
+        weights = [[1 for _ in row] for row in maze]
+    
+    queue = deque([(start, [start], 0)])  # (position, path, cost)
     visited = set([start])
-    parent = {}
+    best_path = None
+    min_cost = float('inf')
+    nodes_expanded = 0
 
     while queue:
-        x, y = queue.popleft()
+        nodes_expanded += 1
+        (x, y), path, cost = queue.popleft()
+        
         if (x, y) == end:
-            return reconstruct_path(parent, end)
-
-        for nx, ny in get_neighbors(x, y):
-            if is_valid_move(maze, nx, ny) and (nx, ny) not in visited:
-                queue.append((nx, ny))
+            if cost < min_cost:
+                min_cost = cost
+                best_path = path
+            continue
+        
+        for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+            nx, ny = x + dx, y + dy
+            if 0 <= nx < len(maze) and 0 <= ny < len(maze[0]) and maze[nx][ny] == 0 and (nx, ny) not in visited:
+                new_cost = cost + weights[nx][ny]
+                new_path = path + [(nx, ny)]
                 visited.add((nx, ny))
-                parent[(nx, ny)] = (x, y)
-
-    return None  # No path found
-
-def get_neighbors(x, y):
-    """Returns possible moves (up, down, left, right)."""
-    return [(x-1, y), (x+1, y), (x, y-1), (x, y+1)]
-
-def is_valid_move(maze, x, y):
-    """Checks if the move is within bounds and not a wall."""
-    size = len(maze)
-    return 0 <= x < size and 0 <= y < size and maze[x][y] == 0
+                queue.append(((nx, ny), new_path, new_cost))
+    
+    return best_path, nodes_expanded, min_cost if best_path else 0
 
 def reconstruct_path(parent, end):
-    """Reconstructs the path from the end to the start."""
+    """Reconstructs path from parent pointers"""
     path = []
     while end in parent:
         path.append(end)
         end = parent[end]
-    path.append(end)  # Add start position
+    path.append(end)
     return path[::-1]
-
-if __name__ == "__main__":
-    maze = get_static_maze()
-    start, end = start_end()
-    path = bfs(maze, start, end)
-    print("BFS Path:", path)

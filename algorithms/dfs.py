@@ -1,40 +1,30 @@
-from maze import get_static_maze, start_end
-
-def dfs(maze, start, end):
-    stack = [start]
-    visited = set([start])
-    parent = {}
+def dfs(maze, start, end, weights):
+    """Depth-First Search with weighted nodes and multiple paths"""
+    stack = [(start, [start], 0)]  # (position, path, cost)
+    visited = set()
+    best_path = None
+    min_cost = float('inf')
+    nodes_expanded = 0
 
     while stack:
-        x, y = stack.pop()
+        nodes_expanded += 1
+        (x, y), path, cost = stack.pop()
+        
         if (x, y) == end:
-            return reconstruct_path(parent, end)
-
-        for nx, ny in get_neighbors(x, y):
-            if is_valid_move(maze, nx, ny) and (nx, ny) not in visited:
-                stack.append((nx, ny))
-                visited.add((nx, ny))
-                parent[(nx, ny)] = (x, y)
-
-    return None  # No path found
-
-def get_neighbors(x, y):
-    return [(x-1, y), (x+1, y), (x, y-1), (x, y+1)]
-
-def is_valid_move(maze, x, y):
-    size = len(maze)
-    return 0 <= x < size and 0 <= y < size and maze[x][y] == 0
-
-def reconstruct_path(parent, end):
-    path = []
-    while end in parent:
-        path.append(end)
-        end = parent[end]
-    path.append(end)  # Add start position
-    return path[::-1]
-
-if __name__ == "__main__":
-    maze = get_static_maze()
-    start, end = start_end()
-    path = dfs(maze, start, end)
-    print("DFS Path:", path)
+            if cost < min_cost:
+                min_cost = cost
+                best_path = path
+            continue
+        
+        if (x, y) in visited:
+            continue
+        visited.add((x, y))
+        
+        for dx, dy in [(-1,0),(1,0),(0,-1),(0,1)]:
+            nx, ny = x + dx, y + dy
+            if 0 <= nx < len(maze) and 0 <= ny < len(maze[0]) and maze[nx][ny] == 0:
+                new_cost = cost + weights[nx][ny]
+                new_path = path + [(nx, ny)]
+                stack.append(((nx, ny), new_path, new_cost))
+    
+    return best_path, nodes_expanded, min_cost if best_path else 0
