@@ -1,3 +1,17 @@
+# PyInstaller generated files
+/build/
+/dist/
+/main.spec
+
+# Python cache and temporary files
 __pycache__/
 *.pyc
 *.pyo
+*.pyd
+*.egg-info/
+*.swp
+*.bak
+
+# IDE specific files
+.idea/
+.vscode/
