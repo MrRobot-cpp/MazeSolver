@@ -1,8 +1,8 @@
 import random
 
-def get_static_maze():
-    """Modified static maze with multiple paths"""
-    return [
+def get_static_maze(size=10):
+    """Returns a predefined maze (0=path, 1=wall) with adjustable size"""
+    base_maze = [
         [0, 1, 0, 0, 0, 1, 0, 0, 0, 0],
         [0, 1, 0, 1, 0, 1, 0, 1, 1, 0],
         [0, 0, 0, 1, 0, 0, 0, 0, 1, 0],
@@ -14,37 +14,27 @@ def get_static_maze():
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         [1, 1, 1, 1, 1, 1, 1, 1, 1, 0]
     ]
+    
+    # Scale the maze if size is different
+    if size != 10:
+        scaled_maze = []
+        for i in range(size):
+            row = []
+            for j in range(size):
+                row.append(base_maze[i*10//size][j*10//size])
+            scaled_maze.append(row)
+        return scaled_maze
+    return base_maze
 
-def generate_random_maze(size=10):
-    """Generates maze with multiple paths using Prim's algorithm"""
-    maze = [[1] * size for _ in range(size)]
-    frontiers = []
-    start = (0, 0)
-    end = (size-1, size-1)
+def generate_random_maze(size=10, wall_prob=0.3):
+    """Generates a random maze with adjustable size and wall density"""
+    maze = [[0 if random.random() > wall_prob else 1 for _ in range(size)] for _ in range(size)]
+    maze[0][0] = 0  # Ensure start is open
+    maze[size-1][size-1] = 0  # Ensure end is open
     
-    # Initialize with start point
-    maze[start[0]][start[1]] = 0
-    for dx, dy in [(-1,0),(1,0),(0,-1),(0,1)]:
-        nx, ny = start[0]+dx, start[1]+dy
-        if 0 <= nx < size and 0 <= ny < size:
-            frontiers.append((nx, ny, start[0], start[1]))
-    
-    # Create multiple paths
-    while frontiers:
-        x, y, px, py = frontiers.pop(random.randint(0, len(frontiers)-1))
-        if maze[x][y] == 1:
-            maze[x][y] = 0
-            maze[(x + px) // 2][(y + py) // 2] = 0
-            for dx, dy in [(-1,0),(1,0),(0,-1),(0,1)]:
-                nx, ny = x + dx, y + dy
-                if 0 <= nx < size and 0 <= ny < size:
-                    frontiers.append((nx, ny, x, y))
-    
-    # Ensure end is open and multiple paths exist
-    maze[end[0]][end[1]] = 0
-    for dx, dy in [(-1,0),(0,-1)]:
-        nx, ny = end[0]+dx, end[1]+dy
-        if 0 <= nx < size and 0 <= ny < size:
-            maze[nx][ny] = 0
+    # Ensure there's at least one path
+    for i in range(1, size):
+        maze[0][i] = 0  # Open first row
+        maze[i][size-1] = 0  # Open last column
     
     return maze
